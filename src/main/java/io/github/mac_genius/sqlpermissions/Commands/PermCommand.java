@@ -85,18 +85,30 @@ public class PermCommand implements CommandExecutor {
                             if (strings[1].equalsIgnoreCase("player")) {
                                 if (strings[2] != null && strings[3] != null) {
                                     SQLUser user = new SQLUser(settings);
+
                                     for (Player p : Bukkit.getOnlinePlayers()) {
-                                        if (strings[3].equals(p.getDisplayName())) {
+                                        if (strings[3].equals(p.getName())) {
                                             for (PermGroup g : settings.getGroups()) {
                                                 if (g.getName().equals(strings[2])) {
                                                     g.addPlayer(p, settings);
-                                                    break;
+                                                    settings.getPlayerPerms().get(p).changeGroup(g);
+                                                    user.setGroup(p, strings[2]);
+                                                    commandSender.sendMessage("Set!");
+                                                    return true;
                                                 }
                                             }
-                                            user.setGroup(p, strings[2]);
-                                            commandSender.sendMessage("Set!");
                                             break;
                                         }
+                                    }
+                                }
+                            }
+                        }
+                    } else if (strings[0].equalsIgnoreCase("list")) {
+                        if (strings[1] != null) {
+                            for (PermGroup p : settings.getGroups()) {
+                                if (p.getName().equals(strings[1])) {
+                                    for (String st : p.getPermissions()) {
+                                        commandSender.sendMessage(st);
                                     }
                                     return true;
                                 }
@@ -105,12 +117,13 @@ public class PermCommand implements CommandExecutor {
                     }
                 }
             }
-            commandSender.sendMessage(ChatColor.GREEN + "<---------- Permissions Help ---------->");
+            commandSender.sendMessage(ChatColor.GREEN + "<-------------- Permissions Help -------------->");
             commandSender.sendMessage(ChatColor.GOLD + "/perm add group <name> <prefix> <suffix> <default> <rank>" + ChatColor.RESET + "" + ChatColor.WHITE + " adds a group.");
             commandSender.sendMessage(ChatColor.GOLD + "/perm add perm <group> <permission>" + ChatColor.RESET + "" + ChatColor.WHITE + " adds a permission to a group.");
             commandSender.sendMessage(ChatColor.GOLD + "/perm remove group <name> " + ChatColor.RESET + "" + ChatColor.WHITE + " removes a group.");
             commandSender.sendMessage(ChatColor.GOLD + "/perm remove perm <group> <permission>" + ChatColor.RESET + "" + ChatColor.WHITE + " removes a permission to a group.");
             commandSender.sendMessage(ChatColor.GOLD + "/perm set player <group> <player>" + ChatColor.RESET + "" + ChatColor.WHITE + " sets a player to a group.");
+            commandSender.sendMessage(ChatColor.GOLD + "/perm list <group>" + ChatColor.RESET + "" + ChatColor.WHITE + " lists the permissions for a group.");
             return true;
         }
         return false;

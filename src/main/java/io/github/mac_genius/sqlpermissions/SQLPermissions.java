@@ -2,6 +2,7 @@ package io.github.mac_genius.sqlpermissions;
 
 import io.github.mac_genius.sqlpermissions.Commands.PermCommand;
 import io.github.mac_genius.sqlpermissions.Listeners.MainListeners;
+import io.github.mac_genius.sqlpermissions.Listeners.SecondaryThread;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -18,6 +19,7 @@ public class SQLPermissions extends JavaPlugin {
     public void onEnable() {
         settings = new PluginSettings(plugin);
         settings.getPlugin().getServer().getPluginManager().registerEvents(new MainListeners(settings), settings.getPlugin());
+        settings.getPlugin().getServer().getScheduler().runTaskTimer(settings.getPlugin(), new SecondaryThread(settings), 0, 1);
         this.getCommand("perm").setExecutor(new PermCommand(settings));
         plugin.getLogger().info("Plugin enabled");
     }

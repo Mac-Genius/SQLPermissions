@@ -6,6 +6,7 @@ import io.github.mac_genius.sqlpermissions.Permissions.PermGroup;
 import io.github.mac_genius.sqlpermissions.Permissions.PermUser;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scoreboard.Scoreboard;
 import org.fusesource.jansi.Ansi;
 
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ public class PluginSettings {
     private SQLConnect connect;
     private ArrayList<PermGroup> groups;
     private Map<Player, PermUser> playerPerms;
+    private Map<Player, Scoreboard> playerScoreboards;
 
     public PluginSettings(Plugin plugin) {
         this.plugin = plugin;
@@ -28,6 +30,7 @@ public class PluginSettings {
         setupDatabase();
         setupGroups();
         setupPerms();
+        setupScoreboards();
     }
 
     public Plugin getPlugin() {
@@ -61,11 +64,19 @@ public class PluginSettings {
         playerPerms = Collections.synchronizedMap(new HashMap<Player, PermUser>());
     }
 
+    private void setupScoreboards() {
+        playerScoreboards = Collections.synchronizedMap(new HashMap<>());
+    }
+
     public ArrayList<PermGroup> getGroups() {
         return groups;
     }
 
     public Map<Player, PermUser> getPlayerPerms() {
         return playerPerms;
+    }
+
+    public Map<Player, Scoreboard> getPlayerScoreboards() {
+        return playerScoreboards;
     }
 }
