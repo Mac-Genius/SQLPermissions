@@ -124,7 +124,7 @@ public class PermUser {
             } else {
                 team = player.getScoreboard().getTeam(g.getName());
             }
-            team.setSuffix(ChatColor.translateAlternateColorCodes('&', g.getSuffix()));
+            //team.setSuffix(ChatColor.translateAlternateColorCodes('&', g.getSuffix()));
             team.setPrefix(ChatColor.translateAlternateColorCodes('&', g.getPrefix()));
         }
         settings.getPlayerScoreboards().put(player, player.getScoreboard());

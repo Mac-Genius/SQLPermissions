@@ -14,6 +14,7 @@ import java.sql.SQLException;
  */
 public class SQLUser {
     private PluginSettings settings;
+    private final String playerList = "SQLPerm_PlayerList";
 
     public SQLUser(PluginSettings settings) {
         this.settings = settings;
@@ -23,7 +24,7 @@ public class SQLUser {
         Connection connection = settings.getConnect().getConnection();
         String uuid = player.getUniqueId().toString();
         try {
-            PreparedStatement fetch = connection.prepareStatement("SELECT * FROM PermUsers WHERE Uuid='" + uuid + "'");
+            PreparedStatement fetch = connection.prepareStatement("SELECT * FROM " + playerList + " WHERE Uuid='" + uuid + "'");
             ResultSet results = fetch.executeQuery();
             String fetcheduuid = "";
             String group = "";
@@ -46,20 +47,20 @@ public class SQLUser {
     private void addToTable(Player player) {
         Connection connection = settings.getConnect().getConnection();
         try {
-            PreparedStatement add = connection.prepareStatement("INSERT INTO PermUsers(Uuid, Groups) VALUES(?, ?)");
+            PreparedStatement add = connection.prepareStatement("INSERT INTO " + playerList + "(Uuid, Groups) VALUES(?, ?)");
             add.setString(1, player.getUniqueId().toString());
             add.setString(2, "Default");
             add.executeUpdate();
             connection.close();
         } catch (SQLException c) {
-            settings.getPlugin().getLogger().warning(Ansi.ansi().fg(Ansi.Color.RED) + "Could not add the player to PermUsers." + Ansi.ansi().fg(Ansi.Color.WHITE));
+            settings.getPlugin().getLogger().warning(Ansi.ansi().fg(Ansi.Color.RED) + "Could not add the player to " + playerList + "." + Ansi.ansi().fg(Ansi.Color.WHITE));
         }
     }
 
     public void setGroup(Player player, String group) {
         Connection connection = settings.getConnect().getConnection();
         try {
-            PreparedStatement add = connection.prepareStatement("UPDATE PermUsers SET Groups='" + group + "' WHERE Uuid='" + player.getUniqueId() + "'");
+            PreparedStatement add = connection.prepareStatement("UPDATE " + playerList + " SET Groups='" + group + "' WHERE Uuid='" + player.getUniqueId() + "'");
             add.executeUpdate();
             connection.close();
         } catch (SQLException c) {

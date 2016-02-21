@@ -15,6 +15,8 @@ import java.util.ArrayList;
  */
 public class SQLGroup {
     private PluginSettings settings;
+    private final String groupHeader = "SQLPerm_Group_";
+    private final String groupList = "SQLPerm_GroupList";
 
     public SQLGroup(PluginSettings settings) {
         this.settings = settings;
@@ -24,7 +26,7 @@ public class SQLGroup {
         Connection connection = settings.getConnect().getConnection();
         ArrayList<PermGroup> groups = new ArrayList<>();
         try {
-            PreparedStatement fetch = connection.prepareStatement("SELECT * FROM PermGroups");
+            PreparedStatement fetch = connection.prepareStatement("SELECT * FROM " + groupList);
             ResultSet results = fetch.executeQuery();
             while (results.next()) {
                 PermGroup group = new PermGroup(results.getString(2), results.getString(3), results.getString(4), results.getBoolean(5), getPermissions(results.getString(2)));
@@ -38,17 +40,18 @@ public class SQLGroup {
         }
     }
 
-    public void addGroup(String name, String prefix, String suffix, boolean defaultG, int rank) {
+    public void addGroup(PermGroup permGroup) {
         Connection connection = settings.getConnect().getConnection();
         try {
-            PreparedStatement add = connection.prepareStatement("INSERT INTO PermGroups(Name, Prefix, Suffix, DefaultG, Rank) VALUES(?, ?, ?, ?, ?)");
-            add.setString(1, name);
-            add.setString(2, prefix);
-            add.setString(3, suffix);
-            add.setBoolean(4, defaultG);
-            add.setInt(5, rank);
+            PreparedStatement add = connection.prepareStatement("INSERT INTO " + groupList + "(Name, Prefix, Suffix, DefaultG, Rank) VALUES(?, ?, ?, ?, ?)");
+            add.setString(1, permGroup.getName());
+            add.setString(2, permGroup.getPrefix());
+            add.setString(3, permGroup.getSuffix());
+            add.setBoolean(4, permGroup.isDefaultGroup());
+            add.setInt(5, permGroup.getRank());
             add.executeUpdate();
-            addGroupPerms(name);
+            addGroupPerms(permGroup.getName());
+            settings.getGroups().add(permGroup);
             connection.close();
         } catch (SQLException c) {
             settings.getPlugin().getLogger().warning(Ansi.ansi().fg(Ansi.Color.RED) + "Could not add the player to the whitelist." + Ansi.ansi().fg(Ansi.Color.WHITE));
@@ -57,7 +60,7 @@ public class SQLGroup {
 
     private void addGroupPerms(String group) {
         Connection connection = settings.getConnect().getConnection();
-        String table = "Perm" + group;
+        String table = groupHeader + group;
         try {
             PreparedStatement tokoins = connection.prepareStatement("CREATE TABLE IF NOT EXISTS " + table + "(Id INT PRIMARY KEY AUTO_INCREMENT, Permission VARCHAR(60))");
             tokoins.executeUpdate();
@@ -71,7 +74,7 @@ public class SQLGroup {
     public void removeGroup(String name) {
         Connection connection = settings.getConnect().getConnection();
         try {
-            PreparedStatement add = connection.prepareStatement("DELETE FROM PermGroups WHERE Name='" + name + "'");
+            PreparedStatement add = connection.prepareStatement("DELETE FROM " + groupList + " WHERE Name='" + name + "'");
             removeGroupTable(name);
             connection.close();
         } catch (SQLException c) {
@@ -81,7 +84,7 @@ public class SQLGroup {
 
     private void removeGroupTable(String group) {
         Connection connection = settings.getConnect().getConnection();
-        String table = "Perm" + group;
+        String table = groupHeader + group;
         try {
             PreparedStatement tokoins = connection.prepareStatement("DROP TABLE " + table);
             tokoins.executeUpdate();
@@ -94,7 +97,7 @@ public class SQLGroup {
 
     private ArrayList<String> getPermissions(String group) {
         Connection connection = settings.getConnect().getConnection();
-        String table = "Perm" + group;
+        String table = groupHeader + group;
         ArrayList<String> permissions = new ArrayList<>();
         try {
             PreparedStatement fetch = connection.prepareStatement("SELECT * FROM " + table);
@@ -112,7 +115,7 @@ public class SQLGroup {
 
     public void addPermission(String group, String permission) {
         Connection connection = settings.getConnect().getConnection();
-        String table = "Perm" + group;
+        String table = groupHeader + group;
         try {
             PreparedStatement fetch = connection.prepareStatement("INSERT INTO " + table + "(Permission) VALUES(?)");
             fetch.setString(1, permission);
@@ -125,10 +128,21 @@ public class SQLGroup {
 
     public void deletePermission(String group, String permission) {
         Connection connection = settings.getConnect().getConnection();
-        String table = "Perm" + group;
+        String table = groupHeader + group;
         try {
             PreparedStatement fetch = connection.prepareStatement("DELETE FROM " + table + " WHERE Permission='" + permission + "'");
             fetch.executeUpdate();
+            connection.close();
+        } catch (SQLException e) {
+            settings.getPlugin().getLogger().warning(Ansi.ansi().fg(Ansi.Color.RED) + "Error deleting the permissions." + Ansi.ansi().fg(Ansi.Color.WHITE));
+        }
+    }
+
+    public void renamePrefix(String prefix, String group) {
+        Connection connection = settings.getConnect().getConnection();
+        try {
+            PreparedStatement change = connection.prepareStatement("UPDATE "+ groupList + " SET Prefix='" + prefix + "' WHERE Name='" + group + "'");
+            change.executeUpdate();
             connection.close();
         } catch (SQLException e) {
             settings.getPlugin().getLogger().warning(Ansi.ansi().fg(Ansi.Color.RED) + "Error deleting the permissions." + Ansi.ansi().fg(Ansi.Color.WHITE));

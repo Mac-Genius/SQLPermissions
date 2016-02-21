@@ -18,6 +18,7 @@ public class PermGroup {
     private boolean defaultGroup;
     private ArrayList<String> permissions;
     private Map<Player, PermUser> players;
+    private int rank;
 
     public PermGroup(String name, String prefix, String suffix, boolean defaultGroup, ArrayList<String> permissions) {
         this.name = name;
@@ -27,6 +28,8 @@ public class PermGroup {
         this.permissions = permissions;
         players = Collections.synchronizedMap(new HashMap<Player, PermUser>());
     }
+
+    public PermGroup() {}
 
     public boolean isDefaultGroup() {
         return defaultGroup;
@@ -43,6 +46,10 @@ public class PermGroup {
     public String getSuffix() {
         return suffix;
     }
+
+    public int getRank() { return rank; }
+
+    public void setRank(int rank) { this.rank = rank; }
 
     public void setDefaultGroup(boolean defaultGroup) {
         this.defaultGroup = defaultGroup;

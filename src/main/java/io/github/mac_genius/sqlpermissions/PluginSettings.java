@@ -40,6 +40,7 @@ public class PluginSettings {
     private void setupDatabase() {
         connect = new SQLConnect(this);
         if (connect.testConnection()) {
+            connect.updateDatabase();
             connect.databaseSetup();
             plugin.getLogger().info(Ansi.ansi().fg(Ansi.Color.GREEN) + "Connected to the database!" + Ansi.ansi().fg(Ansi.Color.WHITE));
         } else {
